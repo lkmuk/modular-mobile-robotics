@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name="mrobotics",
@@ -7,7 +7,7 @@ setup(
     author_email="lkmuk2017@gmail.com",
     version="0.1",
     description="modeling for state estimation and control, data structures and algorithms",
-    packages=["mrobotics","mrobotics.piecewise."],
+    packages=['mrobotics.'+pkg_name for pkg_name in find_packages('mrobotics')],
     license="BSD",
     install_requires=["numpy","matplotlib"]
 )
