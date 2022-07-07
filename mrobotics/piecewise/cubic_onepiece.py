@@ -90,21 +90,58 @@ class spline_2d_onepiece:
         """
         return shape: len(t_eval_normalized) x 2
         """
+        # in general, a quadratic function wrt t
         basis_eval = np.ones((len(t_eval_normalized),self.get_ord()-1))
         for i in range(1,basis_eval.shape[-1]):
-            # i == polynomial degree - 1
+            # i is the polynomial degree in the tangent vector expression
+            # i == polynomial degree (in the zeroth-order derivative) - 1
+            # the basis row vectors for i == 0 are always 1, 
+            # the one-initialization strategy means there is no need for looping i = 0
             basis_eval[:,i] = (i+1)*(t_eval_normalized**(i))
         # print(basis_eval)
         return basis_eval@self.coeff[1:,:]
 
     def get_deri_tang_wrt_natural(self,t_eval_normalized):
-        raise NotImplementedError()
+        # in general, a linear function wrt t
 
-    def get_curvature_wrt_natural(self, t_eval_normalized):
+        # basis_eval = np.zeros((len(t_eval_normalized),self.get_ord()-2))
+        # for i in range(0,basis_eval.shape[-1]):
+        #     basis_eval[:,i] = (i+2)*(i+1)*(t_eval_normalized**(i))
+
+        # more explicit
+        basis_eval = np.zeros((len(t_eval_normalized),2))
+        basis_eval[:,0] = 2
+        basis_eval[:,1] = 6*t_eval_normalized
+        return basis_eval@self.coeff[2:,:]
+
+    def get_tang_curvature_wrt_natural(self, t_eval_normalized):
         """
-        return shape: len(t_eval_normalized)
-        """
-        raise NotImplementedError()
+        use get_tang(t_eval) or the normalized version if you ONLY need the tangent!
+            inputs
+            -------------
+            t_eval_normalized (1d np vector of size N)
+    
+            outputs
+            -------------
+            tangent_wrt_natural: 2 x N
+            signed_curvature: 1 x N
+                ("left turn" is defined to have +ve curvature)
+    
+        """           
+        tangent_vecs = self.get_tang_wrt_natural(t_eval_normalized)
+        
+        ddot_vecs = self.get_deri_tang_wrt_natural(t_eval_normalized)
+        # unsigned curvature
+        #       \| \dot{p} \cross \ddot{p} \|
+        # k(t)= ------------------------------
+        #        \| \dot{p} \| ^3
+        
+        # 1. the numerator (specialized for the 2D case, which is already in the correct polarity)
+        signed_curvature = tangent_vecs[:,0]*ddot_vecs[:,1] - tangent_vecs[:,1]*ddot_vecs[:,0]
+        # 2. the denominator
+        signed_curvature /= (np.linalg.norm(tangent_vecs,axis=1, ord=2)**3)
+        
+        return tangent_vecs, signed_curvature
 
     # ----------------------------------------
     #  with respect to the user-defined domain
@@ -117,9 +154,14 @@ class spline_2d_onepiece:
         t_normalized = self.normalize_parameter(t_eval)
         return self.get_tang_wrt_natural(t_normalized)*self.oneOverT
     
-    def get_curvature(self, t_eval):
+    def get_deri_tang(self, t_eval):
         t_normalized = self.normalize_parameter(t_eval)
-        return self.get_curvature_wrt_natural(t_normalized) #*self.oneOverT
+        return self.get_deri_tang_wrt_natural(t_normalized)*(self.oneOverT**2)
+
+    def get_tang_curvature(self, t_eval):
+        t_normalized = self.normalize_parameter(t_eval)
+        tangent_wrt_natural, curvature = self.get_tang_curvature_wrt_natural(t_normalized)
+        return tangent_wrt_natural*self.oneOverT, curvature
 
     # ----------------------------------------
     # more utilities
