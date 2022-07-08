@@ -37,9 +37,9 @@ class kinematic_car_simulator:
         self.t_sim_ev = np.linspace(0, step_sz*N_steps, N_steps+1)
 
         # preallocate the buffer for storing the plant trajectories
-        self.X = np.zeros((N_steps+1, 5), dtype=float)
+        self.X = np.ones((N_steps+1, 5), dtype=float)*np.nan
         self.X[0,:] = initial_state
-        self.U = np.zeros((N_steps  , 2), dtype=float)
+        self.U = np.ones((N_steps  , 2), dtype=float)*np.nan
 
         self.plant = ackermann_car_actuator(**plant_param_dict)
 
