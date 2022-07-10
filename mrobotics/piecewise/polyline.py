@@ -29,9 +29,11 @@ class waypoints:
         """
         assert XY_waypoints.ndim == 2 and XY_waypoints.shape[1] == 2
         assert XY_waypoints.shape[0] >=2, "if initialized without enough waypoint, code might break!"
-        self.XY_waypoints = XY_waypoints
+        self.XY_waypoints = XY_waypoints.copy() # copied to ensure data consistence (cf. idx2arclen)
         self.idx2arclen = np.append([0.0],calc_cum_distance(XY_waypoints)) # one-time computation, a sorted array
     
+    def get_num_waypts(self):
+        return self.XY_waypoints.shape[0]
 
     def get_tot_dist(self):
         return float(self.idx2arclen[-1])
@@ -85,6 +87,9 @@ class waypoints:
 
     def get_pos_utang(self, arclength, clip=True):
         """ prefer this if you want both!
+
+        Bundled together to save computation
+        (specialized for linear interpolation)
         """
         if clip:
             arclength = np.clip(arclength, 0.0, self.get_tot_dist())
@@ -94,7 +99,7 @@ class waypoints:
         scale = (arclength-self.idx2arclen[idx])/(self.idx2arclen[idx+1]-self.idx2arclen[idx])
         return p0 + p0_to_p1*scale, (p0_to_p1)/np.linalg.norm(p0_to_p1,ord=2)
 
-    def project(self, XY_query, arclength_init_guess, iter_max = 5, soln_tolerance = 0.001):
+    def project(self, XY_query, arclength_init_guess, iter_max = 5, soln_tolerance = 0.001, verbose=False):
         """Project a query point to the polyline in an iterative manner
 
         Args:
@@ -102,6 +107,7 @@ class waypoints:
             arclength_init_guess (float)
             iter_max (int, optional): Defaults to 5.
             soln_tolerance (float, optional): Defaults to 0.001.
+            verbose (bool): print out the intermediate results ?
 
         Returns:
             projected_arc_length (float)
@@ -123,11 +129,13 @@ class waypoints:
         s_new = arclength_init_guess
         converged = False
         while (not converged and i < iter_max):
-            # print(f"working on iteration {i}", end=': ')
+            if verbose:
+                print(f"working on iteration {i}", end=': ')
             s_old = s_new
             curve_pos_now, curve_unit_tang_now = self.get_pos_utang(s_old, clip=False)
             s_new += np.dot(XY_query-curve_pos_now, curve_unit_tang_now) # update law
-            # print(f'new iterate {s_new:.3f}')
+            if verbose:
+                print(f'new iterate {s_new:.3f}')
             converged = np.abs(s_new-s_old) < soln_tolerance
             i+= 1
         if not converged:
