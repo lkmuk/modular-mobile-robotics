@@ -39,7 +39,7 @@ class p0v0pfvf_selector:
 
         """
         # update the current progress
-        arc_length_progress_now = self.path.project(robot_pose[:2], arclength_init_guess=self.progress)
+        arc_length_progress_now = self.path.project(robot_pose[:2], arclength_init_guess=self.progress)[0]
         progress_change = arc_length_progress_now-self.progress
         if np.abs(progress_change) > self.progress_change_ub:
             raise ValueError(f'The progress changes ({progress_change:.2f} m) too abruptly, which is not unreasonable')
@@ -48,7 +48,8 @@ class p0v0pfvf_selector:
         
         # compute pf, vf
         progress_terminal = self.progress + desired_progress_rate*T_horizon
-        xy_f, utan_f = self.path.get_pos_utang(progress_terminal, clip=False)
+        xy_f   = self.path.get_pos(progress_terminal, clip=False)
+        utan_f = self.path.get_utang(progress_terminal, clip=False)
         v_f = desired_progress_rate*utan_f 
         # v_f = desired_progress_rate*utan_f*0.2 # probably shouldn't do this in junction with the single-piece cubic flatness trajectory generator
         
@@ -56,8 +57,10 @@ class p0v0pfvf_selector:
         xy_0 = robot_pose[:2]
         v_0 = desired_progress_rate*np.array([np.cos(robot_pose[2]),np.sin(robot_pose[2])])
         # seems more reasonable to use the same initial condition as the current state variables.
-        # xy_0, utan_0 = self.path.get_pos_utang(self.progress, clip=False)
+        # xy_0   = self.path.get_pos(self.progress, clip=False)
+        # utan_0 = self.path.get_utang(self.progress, clip=False)
         # v_0 = desired_progress_rate*utan_0
-        # return xy_0, v_0, xy_f, v_f
 
-        return xy_0, v_0, xy_f, v_f
+
+        # return xy_0, v_0, xy_f, v_f
+        return map(lambda arr_like_obj: np.array(arr_like_obj).reshape(2), (xy_0, v_0, xy_f, v_f)) # just in case

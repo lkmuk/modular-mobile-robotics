@@ -1,11 +1,11 @@
 import numpy as np
 from scipy.interpolate import splrep, splev, splder # splint is not useful in our case
-from mrobotics.piecewise.polyline import waypoints # mainly for the API and (heuristic) breakpoint calculation
+from mrobotics.piecewise.polyline import polyline # mainly for the API and (heuristic) breakpoint calculation
 
 import matplotlib.pyplot as plt
 
 
-class interpolating_path2d(waypoints):
+class interpolating_path2d(polyline):
     def __init__(self, XY_waypoints: np.array):
         """a minimalistic 2D interpolating curve with quasi arc-length parametrization
      
@@ -95,7 +95,7 @@ class interpolating_path2d(waypoints):
         ax.grid('both')
         # ax.legend()
     
-    def get_pos_utang(self, t_query, clip=True):
+    def _get_pos_utang(self, t_query, clip=True):
         """ prefer this if you want both!
 
         t_query: float
@@ -162,7 +162,21 @@ class interpolating_path2d(waypoints):
         some conversion by chain rule: dk/ds = (dk/dt)/(ds/dt)
         """
         pass
-                
+
+    def project2(self, XY_query, arclength_init_guess, iter_max = 5, soln_tolerance = 0.001,verbose=False):
+        """Project a query point iteratively via "error linearization" (exact Newton).)
+
+        Exactly the same API as `project` (which is based on curve linearization).
+        The only difference is the underlying algorithm.
+
+        Since this algorithm requires the curve to be twice-differentiable,
+        it wasn't (and cannot be) made available to the `polyline` baseclass.
+
+        It can crash if you have a flat error plateau (wrt the arc-length variable).
+        In that case, maybe try project1 instead which is more robust but typically slower.
+        """
+        raise NotImplementedError()
+
     def _init_spline_objs(self):
         """
         use cases: 
