@@ -34,3 +34,29 @@ def gen_arc_points(xy_center, radius, start_radian, stop_radian, N_samples = 10)
         sign = -1
     xy_arc = radius * np.vstack([np.cos(angles), np.sin(sign*angles)]).T
     return np.array(xy_center).reshape(1,2) + xy_arc
+
+def gen_s_curve(r1, r2):
+    """
+    Steering sequence along the path:
+    1. straight driving
+    2. 180-deg left turn (radius r1, in m)
+    3. straight driving
+    4. 180-deg right turn (radius r2, in m)
+    5. straight driving
+
+    return xy-coordinate of the waypoints (Nx2 numpy array)
+    """
+    assert r1 > 0.1
+    assert r1 > 0.1
+    return np.array([
+        [0,0],
+        [r1*0.50,0],
+        [r1*0.75,0],
+        *gen_arc_points([r1,r1],radius=r1, start_radian=-np.pi/2, stop_radian=np.pi/2, N_samples=6),
+        [r1*0.75, 2*r1],
+        [r1*0.55, 2*r1],
+        [0, 2*r1],
+        *gen_arc_points([-r2,2*r1+r2],radius=r2, start_radian=np.pi*1.5, stop_radian=np.pi/2, N_samples=6),
+        [r1*0.55, 2*r1+2*r2],
+        [r1, 2*r1+2*r2],
+    ])
