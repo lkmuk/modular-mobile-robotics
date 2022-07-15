@@ -92,9 +92,13 @@ class stanley_path_follower:
         """
         # estimate the Frenet offset
         xy_front = calc_xy_front_axle(robot_state[0:3], self.l)
-        s_now, offset_now = self.path.project(XY_query=xy_front, arclength_init_guess=self.s_last, soln_tolerance=0.01)
+        s_now, offset_now = self.path.project(XY_query=xy_front, arclength_init_guess=self.s_last, soln_tolerance=0.01, iter_max=5)
         # plausibility check: update initial guess (for the last controller update)
-        if np.abs(self.s_last-s_now)*self.f_update > 2.0*robot_state[4]:
+        est_abs_progress_rate = np.abs(self.s_last-s_now)*self.f_update # along the reference path
+        if np.abs(robot_state[4]) <= 1e-3: # m/s --- vehicle almost stationary
+          # ONLY FOR development
+          assert est_abs_progress_rate <= 1e-2
+        elif est_abs_progress_rate > 10.0*robot_state[4]: # some heuristic bounds
           # ONLY FOR development
           raise ValueError(f"Abrupt change detected at t = {sim_time:.3f}, rear wheel actual speed: {robot_state[4]:.2f}, previous path progress {self.s_last:.2f} m; estimated to be {s_now:.2f} m,  offset {offset_now:.2f} m.")
         else:
