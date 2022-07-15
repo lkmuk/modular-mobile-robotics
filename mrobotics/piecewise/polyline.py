@@ -236,8 +236,8 @@ class polyline:
         final_unit_normal_vec = np.array([-curve_unit_tang_now[1], curve_unit_tang_now[0]]) # rotation CCW by 90 deg
         projected_distance =  np.dot(delta_XY, final_unit_normal_vec)
         
-        if not converged:
-            s_new = np.nan # ^.^
+        # if not converged:
+        #     s_new = np.nan # ^.^  ---- worse then not doing anything
         return s_new, projected_distance
 
 
