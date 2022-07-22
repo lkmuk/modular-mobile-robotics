@@ -44,7 +44,7 @@ class pose2:
         return pose2(x_new, y_new, theta_new)
     
     def jac1_compose(self, pose2_right, pose2_new = None):
-        """
+        r"""
         suppose we have a composition pose_new:  myself (+) pose2_right,
         jac1 is defined to be \partial pose_new / \partial myself
 
@@ -57,7 +57,7 @@ class pose2:
         jac1[1,2] = pose2_new.x - self.x
         return jac1
     def jac2_compose(self):
-        """
+        r"""
         suppose we have a composition pose_new:  myself (+) pose2_right,
         jac2 is defined to be \partial pose_new / \partial pose2_right
         """

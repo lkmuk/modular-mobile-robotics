@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 class spline_2d_onepiece:
     def __init__(self,t0, t1, coeff=None):
-        """single-piece cubic spline in 2D
+        r""" single-piece cubic spline in 2D
 
         x(t) = \sum_{i=0}^{3} (t-t0/ t1-t0)^{i} cx[i]
         y(t) = \sum_{i=0}^{3} (t-t0/ t1-t0)^{i} cy[i]
