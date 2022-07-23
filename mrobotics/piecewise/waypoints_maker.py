@@ -60,3 +60,25 @@ def gen_s_curve(r1, r2):
         [r1*0.55, 2*r1+2*r2],
         [r1, 2*r1+2*r2],
     ])
+
+
+def make_rabbit_pattern():
+    """
+    motivation: a loop pattern with sharp corners
+    """
+    rhs = np.array([
+        (2,-7),
+        (7,-3),
+        (7, 3),
+        (4, 7.0),
+        (7, 12.0),
+        (8.0, 20.0),
+        (7.5, 25.0),
+        (4.0, 20.0),
+        (1.0, 10.0),
+    ])
+    # first permutate in reverse order
+    lhs = rhs[::-1].copy()
+    # then reflect about the y-axis
+    lhs[:,0] = -lhs[:,0]
+    return np.vstack((rhs, lhs))
