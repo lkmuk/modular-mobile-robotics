@@ -42,7 +42,7 @@ def viz_projection(path_obj, test_query_pt, init_guess_list, result_Frenet, ax=N
 
     path_obj.viz(ax=ax)
     for inital_guess_ind, s in enumerate(result_s):
-        xy_projected = path_obj.get_pos(s,clip=False).reshape(2)
+        xy_projected = path_obj.get_pos(s).reshape(2)
         ax.plot(
             [test_query_pt[0], xy_projected[0]], 
             [test_query_pt[1], xy_projected[1]], 

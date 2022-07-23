@@ -105,7 +105,7 @@ class stanley_path_follower:
           self.s_last = s_now
 
         # more required variables
-        unit_x_vector_Frenet_wrt_world = self.path.get_utang(s_now, clip=False).reshape(2)
+        unit_x_vector_Frenet_wrt_world = self.path.get_utang(s_now).reshape(2)
         # angle wrapping deferred to the stanley call
         error_yaw = robot_state[2] - np.arctan2(unit_x_vector_Frenet_wrt_world[1], unit_x_vector_Frenet_wrt_world[0]) 
         vf = v_front_axle_from_robot_state(Vx_actual=robot_state[4], steering_actual=robot_state[3])

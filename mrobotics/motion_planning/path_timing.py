@@ -48,8 +48,8 @@ class p0v0pfvf_selector:
         
         # compute pf, vf
         progress_terminal = self.progress + desired_progress_rate*T_horizon
-        xy_f   = self.path.get_pos(progress_terminal, clip=False)
-        utan_f = self.path.get_utang(progress_terminal, clip=False)
+        xy_f   = self.path.get_pos(progress_terminal)
+        utan_f = self.path.get_utang(progress_terminal)
         v_f = desired_progress_rate*utan_f 
         # v_f = desired_progress_rate*utan_f*0.2 # probably shouldn't do this in junction with the single-piece cubic flatness trajectory generator
         
@@ -57,8 +57,8 @@ class p0v0pfvf_selector:
         xy_0 = robot_pose[:2]
         v_0 = desired_progress_rate*np.array([np.cos(robot_pose[2]),np.sin(robot_pose[2])])
         # seems more reasonable to use the same initial condition as the current state variables.
-        # xy_0   = self.path.get_pos(self.progress, clip=False)
-        # utan_0 = self.path.get_utang(self.progress, clip=False)
+        # xy_0   = self.path.get_pos(self.progress)
+        # utan_0 = self.path.get_utang(self.progress)
         # v_0 = desired_progress_rate*utan_0
 
 
