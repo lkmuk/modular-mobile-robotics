@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 from mrobotics.piecewise.polyline import polyline, polyline_from_bin
-
+np.set_printoptions(precision=2)
 
 def test_read_write_waypt_file(tmp_path):
     xy = np.array([
@@ -26,7 +26,9 @@ def test_read_waypt_file_custom_bkpt(tmp_path):
     xy = np.array([
         [0.34, -1.2],
         [30.1, 15.0],
-        [20.0, 23.1]
+        [20.0, 23.1],
+        [25.0, 23.1],
+        [28.0, 23.1],
     ])
     xy_obj = polyline(xy)
     # some legitimate modification, e.g. offset
@@ -34,8 +36,8 @@ def test_read_waypt_file_custom_bkpt(tmp_path):
     offset = 10.0
     xy_obj.idx2arclen = xy_obj.idx2arclen + offset 
     xy_obj.save_as_bin(tmp_path/"waypt_modified.data")
-    print(xy_obj.idx2arclen)
-    print(xy_obj.XY_waypoints)
+    print("the breakpoints (after the modification):", xy_obj.idx2arclen)
+    print("expected waypoints:\n", xy_obj.XY_waypoints)
 
     xy_recover1 = polyline_from_bin(tmp_path/"waypt_modified.data", keep_src_arc_length=False)
     np.testing.assert_allclose(
