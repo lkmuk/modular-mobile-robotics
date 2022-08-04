@@ -12,5 +12,5 @@ setup(
     description="modeling for state estimation and control, data structures and algorithms",
     packages=[pkg_name_main, *[pkg_name_main+"."+pkg_name for pkg_name in find_packages(pkg_name_main)]],
     license="BSD",
-    install_requires=["numpy","matplotlib"]
+    install_requires=["numpy","matplotlib","scipy"]
 )
