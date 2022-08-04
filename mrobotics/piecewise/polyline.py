@@ -140,3 +140,15 @@ class polyline(planar_curve_deg1):
     #     ax.grid('both')
     #     ax.legend()
             
+    def save_as_bin(self, fpath):
+        data = np.hstack((self.idx2arclen.reshape(-1,1), self.XY_waypoints)).astype(np.float64)
+        data.tofile(fpath)
+
+class polyline_from_bin(polyline):
+    def __init__(self, fpath, keep_src_arc_length=False):
+        data = np.fromfile(fpath, dtype=np.float64).reshape(3,-1)
+        # we will ignore the breakpoints
+        data_xy = data[:,1:3]
+        super().__init__(data_xy)
+        if keep_src_arc_length:
+            self.idx2arclen = data[:,0]
