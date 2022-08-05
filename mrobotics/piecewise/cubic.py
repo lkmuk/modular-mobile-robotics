@@ -8,7 +8,7 @@ from .base import planar_curve_deg3 # the API + some functionalities
 from .polyline import polyline # for the breakpoint calculation (using chord-length parameterization)
 
 class cubic_interpolating_curve(planar_curve_deg3):
-    def __init__(self, XY_waypoints: np.array):
+    def __init__(self, XY_waypoints: np.array, s_waypts: np.array = None):
         """a minimalistic 2D interpolating curve with chord-length length parametrization
      
         functionalities
@@ -42,9 +42,14 @@ class cubic_interpolating_curve(planar_curve_deg3):
           In fact, it will copy the given waypoints.
           (as inherited from the base class)        
         """
-        _chord_length_calculator = polyline(XY_waypoints) # which will btw validate XY_waypoints
-        self.XY_waypoints = XY_waypoints
-        self.idx2arclen = _chord_length_calculator.idx2arclen
+        if s_waypts is None:
+          _chord_length_calculator = polyline(XY_waypoints) # which will btw validate XY_waypoints
+          self.XY_waypoints = _chord_length_calculator.XY_waypoints # which is a copy
+          self.idx2arclen = _chord_length_calculator.idx2arclen
+        else:
+          assert len(s_waypts.reshape(-1)) == len(XY_waypoints.reshape(-1,2))
+          self.XY_waypoints = XY_waypoints.reshape(-1,2)
+          self.idx2arclen = s_waypts # no checks on whether it's really monotonically increasing
 
         # spl is a shorthand for spline, each is a tuple of 
         # (t --- knots , c --- coefficients, k -- order)
